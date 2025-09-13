@@ -13,19 +13,9 @@ class MarkdownToPdfConverter:
     
     def __init__(self, config=None):
         self.config = config or PDFConfig()
+        # Validate configuration on initialization
+        self.config.validate_config()
         
-    def _read_css(self):
-        """Read CSS content from file"""
-        css_content = ""
-        aa=CSS()
-        css_file_path = "styles.css"
-        if os.path.exists(css_file_path):
-            with open(css_file_path, 'r', encoding='utf-8') as f:
-                css_content = f.read()
-            logging.debug("CSS file read successfully")
-        else:
-            logging.warning(f"CSS file not found at: {css_file_path}")
-        return css_content
     
     def _create_html_document(self, markdown_text, header_image_uri):
         """Create complete HTML document with proper structure"""
@@ -36,19 +26,19 @@ class MarkdownToPdfConverter:
         
         # Create complete HTML document with proper structure
         complete_html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Markdown Document</title>
-   
-</head>
-<body>
-    {f'<img src="{header_image_uri}" class="header-image" alt="Header">' if header_image_uri else ''}
-    <div class="content">
-        {html_content}
-    </div>
-</body>
-</html>"""
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Markdown Document</title>
+                                
+                                </head>
+                                <body>
+                                    {f'<img src="{header_image_uri}" class="header-image" alt="Header">' if header_image_uri else ''}
+                                    <div class="content">
+                                        {html_content}
+                                    </div>
+                                </body>
+                                </html>"""
         
         logging.debug("HTML document created")
         return complete_html
@@ -60,7 +50,7 @@ class MarkdownToPdfConverter:
             os.makedirs(output_dir, exist_ok=True)
             logging.info(f"Created output directory: {output_dir}")
     
-    def convert(self, markdown_text, output_path, header_image_path=None):
+    def convert(self, markdown_text, output_path):
         """
         Convert markdown text to PDF with proper styling and error handling
         """
@@ -69,14 +59,14 @@ class MarkdownToPdfConverter:
             
             # Handle header image
             header_img_uri = ""
-            if header_image_path:
-                if os.path.exists(header_image_path):
-                    abs_path = Path(header_image_path).absolute()
+            if self.config.header_path:
+                if os.path.exists(self.config.header_path):
+                    abs_path = Path(self.config.header_path).absolute()
                     header_img_uri = abs_path.as_uri()
                     logging.info(f"Header image found at: {abs_path}")
                     logging.debug(f"Header image URI: {header_img_uri}")
                 else:
-                    logging.warning(f"Header image not found at: {header_image_path}")
+                    logging.warning(f"Header image not found at: {self.config.header_path}")
             
             # Create complete HTML document
             complete_html = self._create_html_document(markdown_text, header_img_uri)
@@ -87,7 +77,7 @@ class MarkdownToPdfConverter:
             # Generate PDF
             logging.info("Generating PDF...")
             doc = HTML(string=complete_html)
-            doc.write_pdf(target=output_path,stylesheets=[CSS("styles.css")])
+            doc.write_pdf(target=output_path,stylesheets=[self.config.get_stylesheet()])
             
             # Verify PDF was created
             if os.path.exists(output_path):
