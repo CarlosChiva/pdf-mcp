@@ -5,15 +5,15 @@ from weasyprint import HTML, CSS
 from pathlib import Path
 import logging
 from config import PDFConfig
+
 # Configurar logging para ver qué está pasando
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-
 def markdown_to_pdf(markdown_text, output_path, header_image_path=None, config=None):
     """
-    Convert markdown text to PDF with proper error handling
+    Convert markdown text to PDF with proper styling and error handling
     """
     try:
         # Use default config if none provided
@@ -22,8 +22,8 @@ def markdown_to_pdf(markdown_text, output_path, header_image_path=None, config=N
         
         logger.info(f"Starting PDF generation to: {output_path}")
         
-        # Convert markdown to HTML with table support
-        html_content = markdown(markdown_text, extensions=['tables'])
+        # Convert markdown to HTML with table support and other extensions
+        html_content = markdown(markdown_text, extensions=['tables', 'fenced_code', 'codehilite', 'toc'])
         logger.debug("Markdown converted to HTML successfully")
         
         # Handle header image
@@ -37,83 +37,24 @@ def markdown_to_pdf(markdown_text, output_path, header_image_path=None, config=N
             else:
                 logger.warning(f"Header image not found at: {header_image_path}")
         
-        # Create complete HTML document
-        complete_html = f"""
-<!DOCTYPE html>
+        # Read CSS content directly
+        css_content = ""
+        css_file_path = "styles.css"
+        if os.path.exists(css_file_path):
+            with open(css_file_path, 'r', encoding='utf-8') as f:
+                css_content = f.read()
+            logger.debug("CSS file read successfully")
+        else:
+            logger.warning(f"CSS file not found at: {css_file_path}")
+        
+        # Create complete HTML document with proper structure
+        complete_html = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
+    <title>Markdown Document</title>
     <style>
-        @page {{
-            size: A4;
-            margin: {config.margin}in;
-            
-            @top-center {{
-                content: "";
-            }}
-        }}
-        
-        body {{
-            font-family: Arial, sans-serif;
-            font-size: {config.font_size}pt;
-            line-height: 1.6;
-            color: #333;
-        }}
-        
-        .header-image {{
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            max-height: {config.header_height}px;
-            z-index: 1000;
-        }}
-        
-        .content {{
-            margin-top: {config.header_height + 20}px;
-        }}
-        
-        h1, h2, h3, h4, h5, h6 {{
-            color: #2c3e50;
-            margin-top: 1em;
-            margin-bottom: 0.5em;
-        }}
-        
-        table {{
-            border-collapse: collapse;
-            width: 100%;
-            margin: 1em 0;
-        }}
-        
-        table th, table td {{
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }}
-        
-        table th {{
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }}
-        
-        blockquote {{
-            border-left: 4px solid #ddd;
-            margin: 1em 0;
-            padding-left: 1em;
-            color: #666;
-        }}
-        
-        code {{
-            background-color: #f4f4f4;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }}
-        
-        a {{
-            color: #3498db;
-            text-decoration: none;
-        }}
+        {css_content}
     </style>
 </head>
 <body>
@@ -122,8 +63,7 @@ def markdown_to_pdf(markdown_text, output_path, header_image_path=None, config=N
         {html_content}
     </div>
 </body>
-</html>
-"""
+</html>"""
         
         logger.debug("HTML document created")
         
@@ -158,46 +98,59 @@ def main():
     print("GENERATING PDF")
     print("="*50)
     
-    # Example markdown content
+    # Example markdown content with various elements
     markdown_content = """
-        # Sample Document
+# Sample Document
 
-        This is a **bold** text and this is *italic* text.
+This is a **bold** text and this is *italic* text.
 
-        ## Section 1
+## Section 1
 
-        - Item 1
-        - Item 2
-        - Item 3
+- Item 1
+- Item 2
+- Item 3
 
-        ## Table Example
+## Section 2
 
-        | Name | Age | City |
-        |------|-----|------|
-        | John | 25  | New York |
-        | Jane | 30  | London |
-        | Bob  | 35  | Tokyo |
+Here's some code:
 
-        ## Another Section
+```python
+def hello():
+    print("Hello, World!")
+```
 
-        Some more text here to test the PDF generation.
-        """
+## Table Example
+
+| Name | Age | City |
+|------|-----|------|
+| John | 25  | New York |
+| Jane | 30  | London |
+
+> This is a blockquote example.
+
+[Link to Google](https://www.google.com)
+
+---
+
+Some more text with **bold**, *italic*, and `code` formatting.
+"""
     
     # Create output directory
     output_dir = "output"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
         print(f"Created directory: {output_dir}")
+    
     header_path = "header.png"
 
     # Generate PDF with header
     custom_config = PDFConfig(margin=0.8, header_height=60, font_size=12)
-    output_path = os.path.join(output_dir, "sample_with_header.pdf")
+    output_path = os.path.join(output_dir, "sample_document.pdf")
     
     if markdown_to_pdf(markdown_content, output_path, header_image_path=header_path, config=custom_config):
         print(f"   ✓ PDF with header created: {output_path}")
     else:
-        print("   ✗ PDF with header generation failed")
+        print("   ✗ PDF generation failed")
     
     # List all generated files
     print("\n" + "="*50)
