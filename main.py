@@ -4,19 +4,12 @@ from markdown import markdown
 from weasyprint import HTML, CSS
 from pathlib import Path
 import logging
-
+from config import PDFConfig
 # Configurar logging para ver qué está pasando
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-class PDFConfig:
-    """
-    Configuration class for PDF generation
-    """
-    def __init__(self, margin=1, header_height=50, font_size=12):
-        self.margin = margin
-        self.header_height = header_height
-        self.font_size = font_size
+
 
 def markdown_to_pdf(markdown_text, output_path, header_image_path=None, config=None):
     """
@@ -156,89 +149,6 @@ def markdown_to_pdf(markdown_text, output_path, header_image_path=None, config=N
             
     except Exception as e:
         logger.error(f"Error generating PDF: {str(e)}", exc_info=True)
-        return False
-
-def simple_markdown_to_pdf(markdown_text, output_path):
-    """
-    Simplified version without header image for testing
-    """
-    try:
-        logger.info(f"Simple PDF generation to: {output_path}")
-        
-        # Convert markdown to HTML
-        html_content = markdown(markdown_text, extensions=['tables'])
-        
-        # Create simple HTML
-        complete_html = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            font-size: 12pt;
-            margin: 40px;
-        }}
-        h1 {{ color: #333; }}
-        table {{ border-collapse: collapse; width: 100%; }}
-        th, td {{ border: 1px solid #ddd; padding: 8px; }}
-        th {{ background-color: #f2f2f2; }}
-    </style>
-</head>
-<body>
-    {html_content}
-</body>
-</html>
-"""
-        
-        # Ensure output directory exists
-        output_dir = os.path.dirname(output_path)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
-        
-        # Generate PDF
-        HTML(string=complete_html).write_pdf(output_path)
-        
-        if os.path.exists(output_path):
-            logger.info(f"✓ Simple PDF created: {output_path}")
-            return True
-        else:
-            logger.error(f"✗ Simple PDF not created")
-            return False
-            
-    except Exception as e:
-        logger.error(f"Error in simple PDF generation: {str(e)}", exc_info=True)
-        return False
-
-def test_weasyprint():
-    """
-    Test if WeasyPrint is working correctly
-    """
-    try:
-        logger.info("Testing WeasyPrint installation...")
-        
-        test_html = """
-        <!DOCTYPE html>
-        <html>
-        <head><title>Test</title></head>
-        <body><h1>WeasyPrint Test</h1><p>If you see this, WeasyPrint is working!</p></body>
-        </html>
-        """
-        
-        test_output = "test_weasyprint.pdf"
-        HTML(string=test_html).write_pdf(test_output)
-        
-        if os.path.exists(test_output):
-            logger.info(f"✓ WeasyPrint is working! Test PDF created: {test_output}")
-            os.remove(test_output)  # Clean up test file
-            return True
-        else:
-            logger.error("✗ WeasyPrint test failed")
-            return False
-            
-    except Exception as e:
-        logger.error(f"WeasyPrint test error: {str(e)}", exc_info=True)
         return False
 
 def main():
