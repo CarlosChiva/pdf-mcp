@@ -22,8 +22,7 @@ class MarkdownToPdfConverter:
         # Convert markdown to HTML with table support and other extensions
         html_content = markdown(markdown_text, extensions=['tables', 'fenced_code', 'codehilite', 'toc'])
         logging.debug("Markdown converted to HTML successfully")
-        header_url = header_image_uri if header_image_uri else "none"
-
+        
         
         # Create complete HTML document with proper structure
         complete_html = f"""<!DOCTYPE html>
@@ -31,14 +30,9 @@ class MarkdownToPdfConverter:
                                 <head>
                                     <meta charset="UTF-8">
                                     <title>Markdown Document</title>
-                                    <style>
-                                        :root {{
-                                            --header-image-url: url("{header_url}");
-                                        }}
-                                    </style>
+                                
                                 </head>
                                 <body>
-
                                     <div class="content">
                                         {html_content}
                                     </div>
