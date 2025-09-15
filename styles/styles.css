@@ -13,6 +13,13 @@
         height: 30px; /* Controla la altura máxima del header */
         margin-top: 5px; /* Ajuste fino si hay espacio extra indeseado */
     }
+    @bottom-center {
+        content: "Página " counter(page) " de " counter(pages);
+        font-family: Arial, sans-serif;
+        font-size: 10pt;
+        color: #666;
+        margin-bottom: 10px; /* Espacio extra abajo */
+    }
 }
 
 body {
