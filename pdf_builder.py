@@ -33,7 +33,6 @@ class MarkdownToPdfConverter:
                                 
                                 </head>
                                 <body>
-                                    {f'<img src="{header_image_uri}" class="header-image" alt="Header">' if header_image_uri else ''}
                                     <div class="content">
                                         {html_content}
                                     </div>
