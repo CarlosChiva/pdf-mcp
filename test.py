@@ -1,8 +1,8 @@
 import os
 import sys
 import logging
-from config import PDFConfig
-from pdf_builder import MarkdownToPdfConverter
+from config.config import PDFConfig
+from service.pdf_builder import MarkdownToPdfConverter
 # Configurar logging para ver qué está pasando
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 import os
 import logging
-from config import PDFConfig
+from ..config.config import PDFConfig
 # Configurar logging para ver qué está pasando
 
 from markdown import markdown
