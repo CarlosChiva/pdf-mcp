@@ -32,8 +32,28 @@ class MarkdownToPdfConverter:
                                     <meta charset="UTF-8">
                                     <title>Markdown Document</title>
                                     <style>
-                                        :root {{
-                                            --header-image-url: url("{header_url}");
+                                        @page {{
+                                            size: A4;
+                                            margin: 0.8in;
+                                            
+                                            /* Encabezado: imagen centrada en la parte superior */
+                                            @top-center {{
+                                                content: "";
+                                                background-image: url("{header_url}");
+                                                background-repeat: no-repeat;
+                                                background-position: center top;
+                                                background-size: contain; /* Importante: mantiene proporción y ajusta al ancho */
+                                                width: 100%;
+                                                height: 30px; /* Controla la altura máxima del header */
+                                                margin-top: 5px; /* Ajuste fino si hay espacio extra indeseado */
+                                            }}
+                                            @bottom-center {{
+                                                content: "Página " counter(page) " de " counter(pages);
+                                                font-family: Arial, sans-serif;
+                                                font-size: 10pt;
+                                                color: #666;
+                                                margin-bottom: 10px; /* Espacio extra abajo */
+                                            }}
                                         }}
                                     </style>
                                 </head>
@@ -87,7 +107,7 @@ class MarkdownToPdfConverter:
             # Verify PDF was created
             if os.path.exists(output_path):
                 file_size = os.path.getsize(output_path)
-                logging.info(f"✓ PDF generated successfully: {output_path} (Size: {file_size} bytes)")
+                logging.info(f"✓ PDF generated successfully: {output_path} (Size: {file_size} bytes)   header: {header_img_uri}")
                 return True
             else:
                 logging.error(f"✗ PDF file was not created at: {output_path}")
