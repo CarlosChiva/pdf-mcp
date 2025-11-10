@@ -1,6 +1,6 @@
 from pydantic import Field
-from config import PDFConfig
-from pdf_builder import MarkdownToPdfConverter
+from .config.config import PDFConfig
+from .service.pdf_builder import MarkdownToPdfConverter
 import os , sys
 def registre_tools(mcp):
     @mcp.tool(name="markdown_to_pdf", description="""Method to convert markdown content to pdf
